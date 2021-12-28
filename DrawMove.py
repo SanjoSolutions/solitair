@@ -1,0 +1,2 @@
+class DrawMove:
+    pass
