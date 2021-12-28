@@ -21,41 +21,8 @@ class PrioritizedItem:
 
 
 class SolitairSolver(Solver):
-    def solve(self, game):
-        state = game
-
-        bound = self.heuristic_function(state)
-
-        while True:
-            solution, next_bound = self.search(state, bound)
-
-            if solution is not None:
-                return solution
-            else:
-                bound = next_bound
-
-    def search(self, state, bound):
-        estimated_total_cost = self.estimate_total_distance(state)
-        if estimated_total_cost > bound:
-            return None, estimated_total_cost
-        if self.is_solution(state):
-            return state, None
-        minimum_estimated_total_cost = math.inf
-        possible_moves = self.determine_possible_moves(state)
-        for move in possible_moves:
-            next_state = do_move(state, move)
-            solution, estimated_total_cost_of_next_state = self.search(next_state, bound)
-            if solution is not None:
-                return solution, None
-            elif estimated_total_cost_of_next_state < minimum_estimated_total_cost:
-                minimum_estimated_total_cost = estimated_total_cost_of_next_state
-        return None, minimum_estimated_total_cost
-
     def is_solution(self, state):
         return self.heuristic_function(state) == 0
-
-    def estimate_total_distance(self, state):
-        return self.traveled_distance(state) + self.heuristic_function(state)
 
     def traveled_distance(self, state):
         return len(state.moves)
@@ -164,58 +131,57 @@ class SolitairSolver(Solver):
             (card_b.rank - card_a.rank == 1 or (card_a.rank == Rank.ACE and card_b.rank == Rank.TWO))
         )
 
-
-def do_move(state, move):
-    if isinstance(move, MoveToFoundationPile):
-        next_state = do_move_to_foundation_pile(state, move)
-    elif isinstance(move, MoveToOtherPile):
-        next_state = do_move_to_other_pile(state, move)
-    elif isinstance(move, DrawMove):
-        next_state = do_draw(state, move)
-    elif isinstance(move, MoveFromStockPileToPile):
-        next_state = do_move_from_stock_pile_to_pile(state, move)
-    elif isinstance(move, MoveFromStockPileToFoundationPile):
-        next_state = do_move_from_stock_pile_to_foundation_pile(state, move)
-    else:
-        raise TypeError('Unexpected type for move: "' + type(move) + '"')
-    return next_state
-
-
-def do_move_to_foundation_pile(state, move: MoveToFoundationPile):
-    next_state = state.copy()
-    card = next_state.piles[move.from_pile_index].pop()
-    next_state.foundation_piles[move.to_foundation_pile_index].append(card)
-    next_state.moves.append(move)
-    return next_state
+    def do_move(self, state, move):
+        if isinstance(move, MoveToFoundationPile):
+            next_state = self.do_move_to_foundation_pile(state, move)
+        elif isinstance(move, MoveToOtherPile):
+            next_state = self.do_move_to_other_pile(state, move)
+        elif isinstance(move, DrawMove):
+            next_state = self.do_draw(state, move)
+        elif isinstance(move, MoveFromStockPileToPile):
+            next_state = self.do_move_from_stock_pile_to_pile(state, move)
+        elif isinstance(move, MoveFromStockPileToFoundationPile):
+            next_state = self.do_move_from_stock_pile_to_foundation_pile(state, move)
+        else:
+            raise TypeError('Unexpected type for move: "' + type(move) + '"')
+        return next_state
 
 
-def do_move_to_other_pile(state, move: MoveToOtherPile):
-    next_state = state.copy()
-    group = next_state.piles[move.from_pile_index][move.card_index:]
-    next_state.piles[move.from_pile_index] = next_state.piles[move.from_pile_index][:move.card_index]
-    next_state.piles[move.to_pile_index].extend(group)
-    next_state.moves.append(move)
-    return next_state
+    def do_move_to_foundation_pile(self, state, move: MoveToFoundationPile):
+        next_state = state.copy()
+        card = next_state.piles[move.from_pile_index].pop()
+        next_state.foundation_piles[move.to_foundation_pile_index].append(card)
+        next_state.moves.append(move)
+        return next_state
 
 
-def do_draw(state, move: DrawMove):
-    next_state = state.copy()
-    next_state.draw()
-    next_state.moves.append(move)
-    return next_state
+    def do_move_to_other_pile(self, state, move: MoveToOtherPile):
+        next_state = state.copy()
+        group = next_state.piles[move.from_pile_index][move.card_index:]
+        next_state.piles[move.from_pile_index] = next_state.piles[move.from_pile_index][:move.card_index]
+        next_state.piles[move.to_pile_index].extend(group)
+        next_state.moves.append(move)
+        return next_state
 
 
-def do_move_from_stock_pile_to_pile(state, move: MoveFromStockPileToPile):
-    next_state = state.copy()
-    card = next_state.stock_pile.pop()
-    next_state.piles[move.pile_index].append(card)
-    next_state.moves.append(move)
-    return next_state
+    def do_draw(self, state, move: DrawMove):
+        next_state = state.copy()
+        next_state.draw()
+        next_state.moves.append(move)
+        return next_state
 
 
-def do_move_from_stock_pile_to_foundation_pile(state, move: MoveFromStockPileToFoundationPile):
-    next_state = state.copy()
-    card = next_state.stock_pile.pop()
-    next_state.foundation_piles[move.foundation_pile_index].append(card)
-    next_state.moves.append(move)
-    return next_state
+    def do_move_from_stock_pile_to_pile(self, state, move: MoveFromStockPileToPile):
+        next_state = state.copy()
+        card = next_state.stock_pile.pop()
+        next_state.piles[move.pile_index].append(card)
+        next_state.moves.append(move)
+        return next_state
+
+
+    def do_move_from_stock_pile_to_foundation_pile(self, state, move: MoveFromStockPileToFoundationPile):
+        next_state = state.copy()
+        card = next_state.stock_pile.pop()
+        next_state.foundation_piles[move.foundation_pile_index].append(card)
+        next_state.moves.append(move)
+        return next_state
