@@ -34,7 +34,7 @@ class Solitair:
             self.foundation_piles[index] = []
 
     def draw(self):
-        if len(self.deck) == 1:
+        if len(self.deck) == 0:
             cards = self.stock_pile
             self.stock_pile = []
             cards.reverse()

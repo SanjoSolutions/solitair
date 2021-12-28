@@ -10,6 +10,7 @@ from MoveFromStockPileToFoundationPile import MoveFromStockPileToFoundationPile
 from Rank import Rank
 from Facing import Facing
 from heapq import heappush, heappop
+import math
 
 MAXIMUM_NUMBER_OF_MOVES = 512
 
@@ -23,31 +24,32 @@ class SolitairSolver(Solver):
     def solve(self, game):
         state = game
 
-        open_set = []
-        prioritized_item = PrioritizedItem(
-            self.estimate_total_distance(state),
-            state
-        )
-        heappush(open_set, prioritized_item)
+        bound = self.heuristic_function(state)
 
-        amount_of_moves = 0
-        while len(open_set) >= 1:
-            prioritized_item2 = heappop(open_set)
-            state = prioritized_item2.item
-            if len(state.moves) < MAXIMUM_NUMBER_OF_MOVES:
-                possible_moves = self.determine_possible_moves(state)
-                for move in possible_moves:
-                    next_state = do_move(state, move)
+        while True:
+            solution, next_bound = self.search(state, bound)
 
-                    if self.is_solution(next_state):
-                        return next_state
+            if solution is not None:
+                return solution
+            else:
+                bound = next_bound
 
-                    prioritized_item = PrioritizedItem(
-                        self.estimate_total_distance(next_state),
-                        next_state
-                    )
-                    heappush(open_set, prioritized_item)
-        return None
+    def search(self, state, bound):
+        estimated_total_cost = self.estimate_total_distance(state)
+        if estimated_total_cost > bound:
+            return None, estimated_total_cost
+        if self.is_solution(state):
+            return state, None
+        minimum_estimated_total_cost = math.inf
+        possible_moves = self.determine_possible_moves(state)
+        for move in possible_moves:
+            next_state = do_move(state, move)
+            solution, estimated_total_cost_of_next_state = self.search(next_state, bound)
+            if solution is not None:
+                return solution, None
+            elif estimated_total_cost_of_next_state < minimum_estimated_total_cost:
+                minimum_estimated_total_cost = estimated_total_cost_of_next_state
+        return None, minimum_estimated_total_cost
 
     def is_solution(self, state):
         return self.heuristic_function(state) == 0
@@ -115,8 +117,9 @@ class SolitairSolver(Solver):
                 move = MoveFromStockPileToFoundationPile(foundation_pile_index)
                 moves.append(move)
 
-        move = DrawMove()
-        moves.append(move)
+        if len(state.deck) >= 1 or len(state.stock_pile) >= 1:
+            move = DrawMove()
+            moves.append(move)
 
         return moves
 

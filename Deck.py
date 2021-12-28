@@ -1,5 +1,8 @@
 import random
 from Card import Card
+from Suit import Suit
+from Rank import Rank
+
 
 class Deck:
     @staticmethod
