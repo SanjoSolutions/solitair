@@ -1,12 +1,12 @@
 from Deck import Deck
 from copy import deepcopy
 
-class Solitair:
+class Solitaire:
     @staticmethod
     def create():
         deck = Deck.create()
         deck.shuffle()
-        return Solitair(deck)
+        return Solitaire(deck)
 
     def __init__(self, deck):
         self.moves = []

@@ -2,10 +2,10 @@ from Suit import Suit
 from Rank import Rank
 from Card import Card
 from Deck import Deck
-from Solitair import Solitair
+from Solitaire import Solitaire
 
 
-def create_solvable_solitair_game():
+def create_solvable_solitaire_game():
     cards = [
         Card(Suit.HEART, Rank.ACE),
         Card(Suit.HEART, Rank.THREE),
@@ -62,5 +62,5 @@ def create_solvable_solitair_game():
     ]
     cards.reverse()
     deck = Deck(cards)
-    game = Solitair(deck)
+    game = Solitaire(deck)
     return game

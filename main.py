@@ -1,11 +1,11 @@
-from create_solvable_solitair_game import create_solvable_solitair_game
-# from Solitair import Solitair
-from SolitairSolver import SolitairSolver
+from create_solvable_solitaire_game import create_solvable_solitaire_game
+# from Solitaire import Solitaire
+from SolitaireSolver import SolitaireSolver
 
 def main():
-    solitair = create_solvable_solitair_game()
-    # solitair = Solitair.create()
-    solver = SolitairSolver()
+    solitair = create_solvable_solitaire_game()
+    # solitair = Solitaire.create()
+    solver = SolitaireSolver()
     solution = solver.solve(solitair)
     print(solution)
 

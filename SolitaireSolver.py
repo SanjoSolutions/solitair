@@ -20,7 +20,7 @@ class PrioritizedItem:
     item: Any=field(compare=False)
 
 
-class SolitairSolver(Solver):
+class SolitaireSolver(Solver):
     def is_solution(self, state):
         return self.heuristic_function(state) == 0
 
